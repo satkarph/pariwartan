@@ -203,7 +203,7 @@ TINYMCE_DEFAULT_CONFIG = {
 }
 TINYMCE_INCLUDE_JQUERY = True
 
-SITE_NAME = "Pytition"
+SITE_NAME = "Pariwartan"
 ALLOW_REGISTER = True
 LOGIN_REDIRECT_URL = reverse_lazy("user_dashboard")
 DEFAULT_INDEX_THUMBNAIL = "/img/petition_icon.svg"

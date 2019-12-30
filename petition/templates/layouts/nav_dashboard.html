@@ -1,9 +1,10 @@
 {% load i18n %}
+{% load staticfiles %}
 {% block navbar %}
 <nav class="navbar navbar-dark bg-dark navbar-expand-sm flex-sm-row">
   <div class="container-fluid">
     {% block brand %}
-      <a class="navbar-brand" href="{% url 'index' %}">{{ sitename }}</a>
+      <a class="navbar-brand" href="{% url 'index' %}"><img src="{% static 'img/logo.png' %}" width="200" /></a>
     {% if is_org %}
     <a class="btn btn-outline-primary" href="{% url 'org_dashboard' slug %}" aria-label="{% trans "Back to dashboard" %}"><span class="oi oi-dashboard"> {% trans "Back to dashboard" %}</span></a>
     {% else %}
