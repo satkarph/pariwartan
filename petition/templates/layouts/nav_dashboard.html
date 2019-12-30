@@ -1,0 +1,29 @@
+{% load i18n %}
+{% block navbar %}
+<nav class="navbar navbar-dark bg-dark navbar-expand-sm flex-sm-row">
+  <div class="container-fluid">
+    {% block brand %}
+      <a class="navbar-brand" href="{% url 'index' %}">{{ sitename }}</a>
+    {% if is_org %}
+    <a class="btn btn-outline-primary" href="{% url 'org_dashboard' slug %}" aria-label="{% trans "Back to dashboard" %}"><span class="oi oi-dashboard"> {% trans "Back to dashboard" %}</span></a>
+    {% else %}
+    <a class="btn btn-outline-primary" href="{% url 'user_dashboard' %}" aria-label="{% trans "Back to dashboard" %}"><span class="oi oi-dashboard"> {% trans "Back to dashboard" %}</span></a>
+    {% endif %}
+    {% endblock brand %}
+    <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+        Menu <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarResponsive">
+      <form class="form-inline my-2 my-lg-0 ml-auto" action="{% url 'search' %}" method="GET">
+        <div class="input-group input-group-sm">
+          <input type="text" class="form-control" placeholder="{% trans "Search for petition" %}" name="q" value="{{ q }}">
+          <div class="input-group-append">
+            <button type="submit" class="btn btn-outline-secondary">{% trans "Search" %}</button>
+          </div>
+        </div>
+      </form>
+      {% include 'layouts/nav-useractions.html' %}
+    </div>
+  </div>
+</nav>
+{% endblock %}

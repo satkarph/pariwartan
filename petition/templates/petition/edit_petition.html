@@ -1,0 +1,349 @@
+{% extends 'layouts/edit_layout.html' %}
+{% load i18n %}
+{% load static %}
+{% load petition_extras %}
+{% block media %}
+    {{ block.super }}
+    {{ content_form.media }}
+    {{ email_form.media }}
+    {{ newsletter_form.media }}
+    {{ social_network_form.media }}
+    {{ style_form.media }}
+{% endblock %}
+
+{% block extracss %}
+{{ block.super }}
+    <style>
+    .custom-switch ~ .invalid-feedback {
+        display: block;
+    }
+    </style>
+{% endblock extracss %}
+
+{% comment %}
+# FIXME: Don't forget to make sure form is submited if something is modified and user changed tab.
+{% endcomment %}
+
+{% block main_title %}
+{% trans "Petition settings" %}
+{% endblock main_title %}
+
+{% block edit_content %}
+<div class="list-group list-group-horizontal mb-5" id="list-tab" role="tablist">
+    <a href="#content_form" class="list-group-item list-group-item-info list-group-item-action"
+    data-toggle="list" aria-controls="content_form" role="tab"><span class="oi oi-clipboard"></span> {% trans "Content" %}</a>
+    <a href="#style_form" class="list-group-item list-group-item-info list-group-item-action"
+    data-toggle="list" aria-controls="style_form" role="tab"><span class="oi oi-brush"></span> {% trans "Style & Look" %}</a>
+    <a href="#social_network_form" class="list-group-item list-group-item-info list-group-item-action"
+    data-toggle="list" aria-controls="social_network_form" role="tab"><span class="oi oi-share-boxed"></span> {% trans "Social Networks" %}</a>
+    <a href="#email_form" class="list-group-item list-group-item-info list-group-item-action"
+    data-toggle="list" aria-controls="email_form" role="tab"><span class="oi oi-envelope-closed"></span> {% trans "E-mail setup" %}</a>
+    <a href="#newsletter_form" class="list-group-item list-group-item-info list-group-item-action"
+    data-toggle="list" aria-controls="newsletter_form" role="tab"><span class="oi oi-rss"></span> {% trans "Newsletter setup" %}</a>
+    <a href="#preview" class="list-group-item list-group-item-info list-group-item-action"
+    data-toggle="list" aria-controls="preview" role="tab"><span class="oi oi-clipboard"></span> {% trans "Preview petition" %}</a>
+</div>
+<div class="tab-content" id="nav-tabContent">
+    <div class="tab-pane fade show active" id="content_form" role="tabpanel"
+         aria-labelledby="list-content-form-list">
+        <form method="POST" id="form_content">{% csrf_token %}
+            {% include "petition/bs4_form.html" with form=content_form %}
+            <button name="content_form_submitted" class="btn btn-primary" value="yes" type="submit">{% trans "Save" %}</button>
+        </form>
+    </div>
+    <div class="tab-pane fade" id="social_network_form" role="tabpanel"
+         aria-labelledby="list-social-network-form-list">
+        <form method="POST" id="form_sn">{% csrf_token %}
+            {% include "petition/bs4_form.html" with form=social_network_form %}
+            <button name="social_network_form_submitted" class="btn btn-primary" value="yes" type="submit" >{% trans "Save" %}</button>
+        </form>
+        <p>
+        <div class="alert alert-info">
+            {% blocktrans %}
+                A permlink (permanent link) is what allows you to share your petition with a nice link
+                containing a meaningful small title instead of a number.
+                With a permlink your petition can be accessible via a link like:
+            {% endblocktrans %}
+            <b>
+            {{ example_url }}
+            </b>
+        </div>
+        <form action="{% url "add_new_slug" petition.id %}" method="POST" class="form-inline">
+        {% csrf_token %}
+        <table class="table table-striped" id="slugTable">
+            <thead class="thead-light">
+            <tr>
+                <th>{% trans "Permlinks" %}</th>
+                <th>{% trans "Actions" %}</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for slug in petition.slugmodel_set.all %}
+                <tr>
+                <td>{{ slug_prefix }}/<b>{{ slug }}</b></td>
+                <td data-slugid="{{ slug.id }}"><input type="button" class="btn btn-danger" data-action="slugDelete" value="{% trans "Delete" %}"></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        </form>
+        </p>
+        <button class="btn btn-success" id="addSlug"><span class="oi oi-plus"></span></button>
+    </div>
+    <div class="tab-pane fade" id="style_form" role="tabpanel"
+         aria-labelledby="style-form-list">
+        <form method="POST" id="form_style">{% csrf_token %}
+            {% include "petition/bs4_form.html" with form=style_form %}
+            <button name="style_form_submitted" class="btn btn-primary" value="yes" type="submit" >{% trans "Save" %}</button>
+        </form>
+    </div>
+    <div class="tab-pane fade" id="email_form" role="tabpanel"
+        aria-labelledby="list-email-form-list">
+        <form method="POST" id="form_email">{% csrf_token %}
+            {% include "petition/bs4_form.html" with form=email_form %}
+            <button name="email_form_submitted" class="btn btn-primary" value="yes" type="submit">{% trans "Save" %}</button>
+        </form>
+    </div>
+    <div class="tab-pane fade" id="newsletter_form" role="tabpanel"
+        aria-labelledby="list-newsletter-form-list">
+        <form method="POST" id="form_newsletter">{% csrf_token %}
+            {% include "petition/bs4_form.html" with form=newsletter_form %}
+            <button name="newsletter_form_submitted" class="btn btn-primary" value="yes" type="submit">{% trans "Save" %}</button>
+        </form>
+    </div>
+    <div class="tab-pane fade" id="preview" role="tabpanel"
+        aria-labelledby="list-preview-list" data-src="{{ petition.url }}">
+            <div class="alert alert-warning" role="alert">
+            {% blocktrans %}
+            Beware: this preview shows the current state of the petition.<br />
+            If you modified some settings, please save if you want to see them in the preview.
+            {% endblocktrans %}
+            </div>
+            <div class="embed-responsive embed-responsive-4by3">
+                <iframe class="embed-responsive-item" src=""></iframe>
+            </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extrajs %}
+    {{ block.super }}
+<script>
+$(function (){
+$('a[data-toggle="list"]').on('shown.bs.tab', function(e){
+    const paneID = $(e.target).attr('href');
+    const src = $(paneID).attr('data-src');
+    const formcontent = $('#form_content');
+    const formstyle = $('#form_style');
+    const formemail = $('#form_email');
+    const formsn = $('#form_sn');
+    const formnewsletter = $('#form_newsletter');
+
+    if(paneID === "#preview" && $(paneID+" div iframe").attr("src") === "") {
+        // update the iframe src attribute using the custom data-attribute value
+        $(paneID+" div iframe").attr("src", src);
+    }
+    if ((formcontent.serialize() !== formcontent.data('serialize')) || formcontent.data('mce_changed')) {
+        $('a[href="#content_form"]').html(`
+        <div class="d-flex">
+            <span class="oi oi-clipboard"></span>
+            <span>&nbsp;</span>
+            <div class="d-flex flex-column">
+                <div>* <i>{% trans "Content" %}</i> </div>
+                <div>&nbsp; ({% trans "unsaved" %})</div>
+            </div>
+        </div>
+        `);
+    } else {
+        $('a[href="#content_form"]').html('<span class="oi oi-clipboard"></span> {% trans "Content" %}');
+    }
+    if (formstyle.serialize() !== formstyle.data('serialize')) {
+        $('a[href="#style_form"]').html(`
+        <div class="d-flex">
+            <span class="oi oi-brush"></span>
+            <span>&nbsp;</span>
+            <div class="d-flex flex-column">
+                <div>* <i>{% trans "Style & Look" %}</i> </div>
+                <div>&nbsp; ({% trans "unsaved" %})</div>
+            </div>
+        </div>
+        `);
+    } else {
+        $('a[href="#style_form"]').html('<span class="oi oi-brush"></span> {% trans "Style & Look" %}');
+    }
+    if (formemail.serialize() !== formemail.data('serialize')) {
+        $('a[href="#email_form"]').html(`
+        <div class="d-flex">
+            <span class="oi oi-envelope-closed"></span>
+            <span>&nbsp;</span>
+            <div class="d-flex flex-column">
+                <div>* <i>{% trans "E-mail setup" %}</i> </div>
+                <div>&nbsp; ({% trans "unsaved" %})</div>
+            </div>
+        </div>
+        `);
+    } else {
+        $('a[href="#email_form"]').html('<span class="oi oi-envelope-closed"></span> {% trans "E-mail setup" %}');
+    }
+    if (formsn.serialize() !== formsn.data('serialize')) {
+        $('a[href="#social_network_form"]').html(`
+        <div class="d-flex">
+            <span class="oi oi-share-boxed"></span>
+            <span>&nbsp;</span>
+            <div class="d-flex flex-column">
+                <div>* <i>{% trans "Social Networks" %}</i> </div>
+                <div>&nbsp; ({% trans "unsaved" %})</div>
+            </div>
+        </div>
+        `);
+    } else {
+        $('a[href="#social_network_form"]').html('<span class="oi oi-share-boxed"></span> {% trans "Social Networks" %}');
+    }
+    if (formnewsletter.serialize() !== formnewsletter.data('serialize')) {
+        $('a[href="#newsletter_form"]').html(`
+        <div class="d-flex">
+            <span class="oi oi-rss"></span>
+            <span>&nbsp;</span>
+            <div class="d-flex flex-column">
+                <div>* <i>{% trans "Newsletter setup" %}</i> </div>
+                <div>&nbsp; ({% trans "unsaved" %})</div>
+            </div>
+        </div>
+        `);
+    } else {
+        $('a[href="#newsletter_form"]').html('<span class="oi oi-rss"></span> {% trans "Newsletter setup" %}');
+    }
+});
+});
+// FIXME: This is because the checkbox+label gets ugly green color if is-valid
+$(function (){
+    $(".custom-switch input[type='checkbox']").removeClass('is-valid');
+});
+
+function hide_others_than(elem, do_hide) {
+    const parent_form_group = elem.closest('.form-group');
+    const all_form_groups = parent_form_group.siblings('.form-group');
+    const all_except_this = all_form_groups.not(parent_form_group);
+    if (do_hide)
+        all_except_this.hide();
+    else
+        all_except_this.show();
+}
+
+$(function () {
+   const newsletter_box = $('#id_has_newsletter');
+   if (!newsletter_box.is(':checked'))
+       hide_others_than(newsletter_box, true);
+});
+
+$(function () {
+   $('#id_has_newsletter').on("change", function() {
+        const box = $(this);
+        const checked = box.prop('checked');
+        if (!checked)
+            hide_others_than(box, true);
+        else
+            hide_others_than(box, false)
+   });
+});
+
+// Javascript to enable link to tab
+$(function () {
+    const hash = document.location.hash;
+    const prefix = "tab_";
+    if (hash) {
+        $('.list-group a[href="' + hash.replace(prefix, "") + '"]').tab('show');
+    }
+
+// Change hash for page-reload
+    $('.list-group a').on('shown.bs.tab', function (e) {
+        window.location.hash = e.target.hash.replace("#", "#" + prefix);
+    });
+});
+
+//show first tab pane where there is an :invalid field
+$(function () {
+    const pane_id = $('input.is-invalid').closest('.tab-pane').attr('id');
+    $('.list-group a[href="#' + pane_id + '"]').tab('show');
+});
+
+var new_slugs_num = 0;
+
+$(function () {
+    $("#addSlug").on("click", function () {
+       var newform;
+       const slugTable = $("#slugTable");
+
+       new_slugs_num++;
+       $("#addSlugTd").prop('rowspan', new_slugs_num);
+
+       newform = `
+        <tr class="bg-light">
+        <td><div class="form-group d-flex"><label class="mr-1" for="sluginputfield">{{ slug_prefix }}/ </label>
+        <input type="text" name="slugtext" class="form-control flex-grow-1" id="sluginputfield" required="required">
+        </div></td>`;
+        if (new_slugs_num === 1)
+            newform += `
+            <td rowspan="` + new_slugs_num +`" id="addSlugTd">
+                <input type="submit" class="btn btn-success" value="{% trans "OK" %}">
+            </td>
+            `;
+       newform += "</tr>";
+       slugTable.find("tbody").append(newform);
+    });
+});
+
+$(function () {
+   $('input[data-action="slugDelete"]').on("click", function() {
+       const slugId = $(this).closest("td[data-slugid]").data("slugid");
+       window.location = "{% url "del_slug" petition.id %}" + "?slugid=" + slugId;
+   });
+});
+
+$(function() {
+    const formcontent = $('#form_content');
+    const formstyle = $('#form_style');
+    const formemail = $('#form_email');
+    const formsn = $('#form_sn');
+    const formnewsletter = $('#form_newsletter');
+
+    formsn.data('serialize', formsn.serialize());
+    formcontent.data('serialize', formcontent.serialize());
+    formstyle.data('serialize', formstyle.serialize());
+    formnewsletter.data('serialize', formnewsletter.serialize());
+    formemail.data('serialize', formemail.serialize());
+});
+
+function formHasChanged(){
+    const formcontent = $('#form_content');
+    const formstyle = $('#form_style');
+    const formemail = $('#form_email');
+    const formsn = $('#form_sn');
+    const formnewsletter = $('#form_newsletter');
+    const content_tab_changed = (formcontent.serialize() !== formcontent.data('serialize'))
+                                    || formcontent.data('mce_changed');
+
+    return (formsn.serialize() !== formsn.data('serialize') && !formsn.data('submitted'))
+        || (content_tab_changed && !formcontent.data('submitted'))
+        || (formstyle.serialize() !== formstyle.data('serialize') && !formstyle.data('submitted'))
+        || (formemail.serialize() !== formemail.data('serialize') && !formemail.data('submitted'))
+        || (formnewsletter.serialize() !== formnewsletter.data('serialize') && !formnewsletter.data('submitted'));
+
+}
+
+$('form').on('submit', function(){
+   $(this).data('submitted', true);
+});
+
+$(window).on('beforeunload', function(){
+  if (formHasChanged()) {
+      return "You have un-saved modifications in the petition, are you sure you want to leave this page? You would lose your changes.";
+  }
+});
+
+function set_mce_changed(ed) {
+    $(ed.formElement).data('mce_changed', true);
+}
+
+</script>
+{% endblock %}
