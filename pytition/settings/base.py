@@ -113,7 +113,13 @@ if os.environ.get('USE_POSTGRESQL'):
 # and cannot configure it to always accept your emails regardless of the sending
 # frequency.
 USE_MAIL_QUEUE = False
-
+EMAIL_HOST = 'email-smtp.us-east-1.amazonaws.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'AKIAQOTBHTVETCSIOBWG'
+EMAIL_HOST_PASSWORD = 'BBDxPNsj5Wb1y4PbcY88lEN5JMuiXc4jDrCW+0z73/69'
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
+SERVER_EMAIL = 'support@genese.com.np'
 # email backend
 # Only supported configurations:
 # - [default] no mailer backend, emails are sent synchronously with no retry if sending fails
